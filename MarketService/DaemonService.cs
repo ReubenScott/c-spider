@@ -150,7 +150,10 @@ namespace Market
             Logger.Debug("计时器触发: " + e.SignalTime);
             try
             {
-                AddTask();
+                if (marketService.IsWorkingTime())
+                {
+                    AddTask();
+                }
             }
             catch (Exception ex)
             {

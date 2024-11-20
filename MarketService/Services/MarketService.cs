@@ -370,6 +370,29 @@ namespace Market.Services
 
 
 
+        /// <summary>
+        /// 判断是否下载时间段
+        /// </summary>
+        /// <returns></returns>
+        public bool IsWorkingTime()
+        {
+            bool isWorkingTime = false;
+            DateTime currentTime = DateTime.Now;
+
+            if (currentTime.DayOfWeek == DayOfWeek.Saturday || currentTime.DayOfWeek == DayOfWeek.Sunday
+                 || DaemonService.Holidays.Contains(currentTime.ToString("yyyy-MM-dd")))
+            {
+                isWorkingTime = true;
+            } else if (currentTime.Hour >= 16 && currentTime.Hour <= 7)
+            {
+                //  开盘之前 08:00 ； 收盘之后(暂时预定1小时 16:00 ，网站数据更新完毕)
+                isWorkingTime = true;
+            }
+
+            return isWorkingTime;
+        }
+
+
         public void FormatData()
         {
             string sql1 = @"SELECT symbol, market_cap ,enterprise_value from company_statistics

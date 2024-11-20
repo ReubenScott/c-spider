@@ -3,7 +3,6 @@ using Market.Models;
 using Market.Services;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 
 namespace Market.Headless
 {
@@ -82,11 +81,11 @@ namespace Market.Headless
                 if (businessElements.Count() > 0)
                 {
                     var businessTitel = businessElements.Select(node => node.SelectNodes("./h2")).First().Select(p => p.InnerText.Trim()).First();
-                    var businessScope = string.Join("\n", businessElements.Select(node => node.SelectNodes("./p")).First().Select(p => WebUtility.HtmlDecode(p.InnerText).Trim()));
+                    var businessScope = string.Join("\n", businessElements.Select(node => node.SelectNodes("./p")).First().Select(p => p.InnerText));
 
                     if (mapping.ContainsKey(businessTitel))
                     {
-                        typeof(CompanyStatistics).GetProperty(mapping[businessTitel])?.SetValue(profile, businessScope);
+                        SetPropertyValue(profile, mapping[businessTitel], businessScope);
                     }
                 }
 
@@ -95,11 +94,11 @@ namespace Market.Headless
                 if (productElements.Count > 0)
                 {
                     var productTitel = productElements.Select(node => node.SelectNodes("./h2")).First().Select(p => p.InnerText.Trim()).First();
-                    var productRange = string.Join("\n", productElements.Select(node => node.SelectNodes("./p")).First().Select(p => WebUtility.HtmlDecode(p.InnerText).Trim()));
+                    var productRange = string.Join("\n", productElements.Select(node => node.SelectNodes("./p")).First().Select(p => p.InnerText));
 
                     if (mapping.ContainsKey(productTitel))
                     {
-                        typeof(CompanyStatistics).GetProperty(mapping[productTitel])?.SetValue(profile, productRange);
+                        SetPropertyValue(profile, mapping[productTitel], productRange);
                     }
                 }
             }
