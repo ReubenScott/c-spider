@@ -39,6 +39,7 @@ namespace Market.Headless
             { "本社住所", "Address" },
             { "電話番号", "Tel" },
             { "資本金", "CapitalStock" },
+            { "発行済み株式数", "IssuedShares" },
         };
 
 

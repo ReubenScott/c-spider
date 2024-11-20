@@ -66,6 +66,9 @@ namespace Market.Services
                 case "Int32":  // 出来高  264,400株
                     property.SetValue(profile, int.Parse(ConvertNumberUnit(decodedStr)));
                     break;
+                case "Int64":  // 発行済み株式数	2,151,545,900(株)
+                    property.SetValue(profile, long.Parse(ConvertNumberUnit(decodedStr)));
+                    break;
                 case "Single":
                     property.SetValue(profile, float.Parse(ConvertNumberUnit(decodedStr)));
                     break;

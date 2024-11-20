@@ -49,16 +49,18 @@ namespace Market.Headless
         {
             { "Market Cap", "MarketCap" },
             { "Enterprise Value", "EnterpriseValue" },
-            //{ "Beta", "BETA" },
             { "Price/Book", "PBR" },
             { "Trailing P/E", "PER" },
+            { "Enterprise Value/Revenue", "EVRevenue" },
+            { "Enterprise Value/EBITDA", "EVEBITDA" },
             { "Return on Assets", "ROA" },
             { "Return on Equity", "ROE" },
             { "Diluted EPS", "EPS" },
             { "52 Week Low", "YearLow" },
             { "52 Week High", "YearHigh" },
             { "52 Week Range", "YearChangeRatio" },
-            { "Forward Annual Dividend Yield", "DividendYield" },
+            { "200-Day Moving Average", "MovingAverage" },
+            { "Trailing Annual Dividend Yield", "DividendYield" },
             { "Ex-Dividend Date", "ExDividendDate" },
             { "Book Value Per Share", "BookValuePerShare" },
             { "Total Debt/Equity", "DebtEquityRatio" },
@@ -103,6 +105,12 @@ namespace Market.Headless
                     var date = DateTime.ParseExact(value, "M/d/yyyy", null);
                     // 将 datetime 对象转换为 yyyymmdd 格式
                     value = date.ToString("yyyy/MM/dd");
+                }
+
+                // 配当利回り%
+                if (value == "0.00%" && key == "Trailing Annual Dividend Yield")
+                {
+                    continue;
                 }
 
                 if (mapping.ContainsKey(key))

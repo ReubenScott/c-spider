@@ -76,6 +76,14 @@ namespace Market.Models
         [Column(Name = "pbr")]
         public float? PBR { get; set; }
 
+        //   Enterprise Value/Revenue
+        [Column(Name = "ev_revenue")]
+        public float? EVRevenue { get; set; }
+
+        //   Enterprise Value/EBITDA
+        [Column(Name = "ev_ebitda")]
+        public float? EVEBITDA { get; set; }
+
         //   基本1株当たり利益
         [Column(Name = "eps")]
         public float? EPS { get; set; }
@@ -109,8 +117,8 @@ namespace Market.Models
         public float? CreditMultiplier { get; set; }
 
         //   200日移動平均乖離率
-        [Column(Name = "moving_average_deviation")]
-        public decimal? MovingAverageDeviation { get; set; }
+        [Column(Name = "moving_average")]
+        public decimal? MovingAverage { get; set; }
 
         //   売上高
         [Column(Name = "amount_of_sales")]
@@ -148,6 +156,14 @@ namespace Market.Models
         [Column(Name = "index_adoption")]
         public string IndexAdoption { get; set; }
 
+        //   単元株数
+        [Column(Name = "per_unit")]
+        public string PerUnit { get; set; }
+
+        //   発行済み株式数
+        [Column(Name = "issued_shares")]
+        public long? IssuedShares { get; set; }
+
         //   事業内容
         [Column(Name = "business_scope")]
         public string BusinessScope { get; set; }
@@ -172,10 +188,6 @@ namespace Market.Models
         [Column(Name = "tel")]
         public string Tel { get; set; }
 
-        //   単元株数
-        [Column(Name = "per_unit")]
-        public string PerUnit { get; set; }
-
         //   URL
         [Column(Name = "url")]
         public string Url { get; set; }
@@ -186,8 +198,7 @@ namespace Market.Models
 
         //   更新日
         [Column(Name = "update_date")]
-        public DateTime? UpdateDate { get; set; }    
-
+        public DateTime? UpdateDate { get; set; }
 
     }
 }

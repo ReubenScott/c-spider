@@ -89,11 +89,6 @@ namespace Market
                             blackList.Add(symbol);
                             Logger.Error($"UpdateCompanyProfile {symbol} Error : {ex.Message}");
                             Logger.Error(ex.StackTrace);
-                            // 更新上場状況
-                            foreach (string delisting in marketService.UpdateDelistedStatus(blackList))
-                            {
-                                blackList.Remove(delisting);
-                            }
                             Logger.Info($"[BlackList] :  {string.Join(", ", blackList)}");
                         }
                         finally
@@ -202,6 +197,12 @@ namespace Market
             // 出错列表重跑
             if (SymbolQueue.Count == 0 && blackList.Count > 0)
             {
+                // 更新上場状況
+                foreach (string delisting in marketService.UpdateDelistedStatus(blackList))
+                {
+                    blackList.Remove(delisting);
+                }
+
                 foreach (string symbol in blackList.ToList())
                 {
                     if (blackList.Remove(symbol))

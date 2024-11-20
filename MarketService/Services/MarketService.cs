@@ -383,7 +383,7 @@ namespace Market.Services
                  || DaemonService.Holidays.Contains(currentTime.ToString("yyyy-MM-dd")))
             {
                 isWorkingTime = true;
-            } else if (currentTime.Hour >= 16 && currentTime.Hour <= 7)
+            } else if (currentTime.Hour >= 16 || currentTime.Hour <= 7)
             {
                 //  开盘之前 08:00 ； 收盘之后(暂时预定1小时 16:00 ，网站数据更新完毕)
                 isWorkingTime = true;
