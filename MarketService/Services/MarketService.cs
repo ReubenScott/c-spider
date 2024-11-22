@@ -132,6 +132,9 @@ namespace Market.Services
             int count = 0;
             string updateColumn = "";
 
+            // SQL  参数化
+            var updateValues = new List<SQLiteParameter>();
+
             foreach (var property in properties)
             {
                 // 获取属性的值
@@ -142,6 +145,7 @@ namespace Market.Services
                 {
                     // 获取应用到属性上的自定义特性
                     var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
+
 
                     if (columnAttribute != null)
                     {
@@ -170,15 +174,18 @@ namespace Market.Services
                                 break;
                         }
 
-
+                        // 使用占位符方式SQL拼接,  避免SQL注入风险
+                        var paramName = $"@{columnAttribute.Name}";
                         if (count++ == 0)
                         {
-                            updateColumn = $"{columnAttribute.Name} = '{value}'";
+                            updateColumn = $"{columnAttribute.Name} = {paramName}";
                         }
                         else
                         {
-                            updateColumn += $", {columnAttribute.Name} = '{value}'";
+                            updateColumn += $", {columnAttribute.Name} = {paramName}";
                         }
+
+                        updateValues.Add(new SQLiteParameter(paramName, value));
                     }
 
                 }
@@ -191,6 +198,7 @@ namespace Market.Services
                 var sql = $"UPDATE company_statistics SET update_date = '{dateString}', {updateColumn} WHERE symbol = '{symbol}'";
                 using (var command = new SQLiteCommand(sql, connection))
                 {
+                    command.Parameters.AddRange(updateValues.ToArray());
                     command.ExecuteNonQuery();
                 }
 

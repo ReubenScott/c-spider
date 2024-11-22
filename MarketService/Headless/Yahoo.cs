@@ -60,7 +60,7 @@ namespace Market.Headless
             { "52 Week High", "YearHigh" },
             { "52 Week Range", "YearChangeRatio" },
             { "200-Day Moving Average", "MovingAverage" },
-            { "Trailing Annual Dividend Yield", "DividendYield" },
+            { "Forward Annual Dividend Yield", "DividendYield" },
             { "Ex-Dividend Date", "ExDividendDate" },
             { "Book Value Per Share", "BookValuePerShare" },
             { "Total Debt/Equity", "DebtEquityRatio" },

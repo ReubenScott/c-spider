@@ -10,13 +10,13 @@ SELECT
   ,established_date          AS  設立日 
   ,industry                  AS  日経業種分類
   ,ROUND(CAST(volume*1000 AS REAL)/issued_shares, 2) as '取引回転率‰' 
-  ,ROUND((present_price - moving_average)*100 /moving_average, 2)  AS  '200日移動平均乖離率%'
   ,dividend_yield            AS  '配当利回り%'
   ,debt_equity_ratio         AS  '债务权益比率%'
   ,per                       AS  '株価収益率(倍)'
   ,pbr                       AS  '株価純資産倍率(倍)'
   ,ev_revenue                AS  '企业价值/收入'
   ,ev_ebitda                 AS  '企业价值/息税前利润'
+  ,ROUND((present_price - moving_average)*100 /moving_average, 2)  AS  '200日移動平均乖離率%'
   ,year_change_ratio         AS  '年初来株価上昇率%'
   ,present_price             AS  現在株価
   ,book_value_per_share      AS  '1株純資産'
