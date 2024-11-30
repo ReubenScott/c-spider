@@ -1,29 +1,12 @@
 ﻿
 
-
-
 -- 初始化
 DELETE FROM company_statistics ;
 
 INSERT INTO company_statistics (
   symbol
-)
-select symbol from CompanyProfile
+) select symbol from CompanyProfile
 ;
-
-
-select * from  company_statistics
-  where 
-    update_date is null 
-	and symbol not in
-  ( select symbol from  company_profile )
-
-  
-
-select * from  company_profile
-  where  symbol  in
-  ( select symbol from  company_statistics   where 
-    update_date is null  )
 
 
 insert into  listing_status (
@@ -34,7 +17,6 @@ insert into  listing_status (
   ,ipoDate  
   ,status  
 ) 
-
 select 
   '東証'
   ,symbol
@@ -49,9 +31,9 @@ from  company_profile
 
 -- SQLite 隨機取數
 SELECT symbol, name, update_date FROM company_statistics
-WHERE symbol NOT IN (SELECT symbol FROM listing_status WHERE status = 'Inactive')
- AND (update_date <> '2024/11/08' OR update_date IS NULL)
-ORDER BY update_date ASC, RANDOM() LIMIT 100
+   WHERE (update_date <> '2024/11/27' OR update_date IS NULL)
+       AND delisting_date IS NULL
+   ORDER BY update_date ASC, RANDOM() LIMIT 100
 
 
 

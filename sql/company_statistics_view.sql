@@ -9,9 +9,10 @@ SELECT
   ,exchange                  AS  市場区分
   ,established_date          AS  設立日 
   ,industry                  AS  日経業種分類
-  ,ROUND(CAST(volume*1000 AS REAL)/issued_shares, 2) as '取引回転率‰' 
+  ,sector                    AS  東証業種名
+  ,ROUND(CAST(volume*1000 AS REAL)/issued_shares, 2) AS '取引回転率‰' 
   ,dividend_yield            AS  '配当利回り%'
-  ,debt_equity_ratio         AS  '债务权益比率%'
+  ,IFNULL(debt_equity_ratio, 0)         AS  '债务权益比率%'
   ,per                       AS  '株価収益率(倍)'
   ,pbr                       AS  '株価純資産倍率(倍)'
   ,ev_revenue                AS  '企业价值/收入'
@@ -52,7 +53,6 @@ SELECT
   ,delisting_date            AS  上場廃止日
   ,update_date               AS  更新日
   ,listing_date              AS  上場日
-  ,sector                    AS  東証業種名
   ,volume                    AS  出来高
 FROM company_statistics
 WHERE delisting_date is NULL

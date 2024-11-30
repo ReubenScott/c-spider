@@ -81,8 +81,6 @@ namespace Market
                         try
                         {
                             await marketService.UpdateCompanyProfile(symbol, latestTradingDate);
-                            // 等待一段时间
-                            System.Threading.Thread.Sleep(4000);   //  毫秒
                         }
                         catch (Exception ex)
                         {
@@ -96,6 +94,8 @@ namespace Market
                             SymbolQueue.RemoveFirst();
                             sw.Stop();
                             Logger.Debug($"SymbolQueue Consumed: {symbol}  Working... {sw.ElapsedMilliseconds} msec");
+                            // 等待一段时间
+                            System.Threading.Thread.Sleep(3500);   //  毫秒
                         }
                     }
                 }
