@@ -7,6 +7,7 @@ using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using Market.Models;
 using Market.Services;
+using System.Diagnostics;
 
 namespace Market.Headless
 {
@@ -109,7 +110,7 @@ namespace Market.Headless
             var end_time = DateTime.Now;
             var elapsed_time = (end_time - start_time).TotalSeconds;
 
-            Console.WriteLine($"耗时: {elapsed_time} 秒");
+            Debug.WriteLine($"耗时: {elapsed_time} 秒");
         }
 
         public async Task<CompanyStatistics> GetCompanyProfile1(string symbol)
@@ -145,13 +146,13 @@ namespace Market.Headless
             }
             else
             {
-                Console.WriteLine($"ウェブサイト「株マップ」に、銘柄「{symbol}」は登録されていません");
+                Debug.WriteLine($"ウェブサイト「株マップ」に、銘柄「{symbol}」は登録されていません");
             }
 
             var end_time = DateTime.Now;
             var elapsed_time = (end_time - start_time).TotalSeconds;
 
-            Console.WriteLine($"耗时: {elapsed_time} 秒");
+            Debug.WriteLine($"耗时: {elapsed_time} 秒");
 
             return row;
         }

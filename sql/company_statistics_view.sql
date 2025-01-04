@@ -8,6 +8,7 @@ SELECT
   ,name                      AS  銘柄名
   ,exchange                  AS  市場区分
   ,established_date          AS  設立日 
+  ,listing_date              AS  上場日
   ,industry                  AS  日経業種分類
   ,sector                    AS  東証業種名
   ,ROUND(CAST(volume*1000 AS REAL)/issued_shares, 2) AS '取引回転率‰' 
@@ -51,9 +52,8 @@ SELECT
   ,tel                       AS  電話番号
   ,url                       AS  URL
   ,delisting_date            AS  上場廃止日
-  ,update_date               AS  更新日
-  ,listing_date              AS  上場日
   ,volume                    AS  出来高
+  ,update_date               AS  更新日
 FROM company_statistics
 WHERE delisting_date is NULL
   AND exchange like '東証%'

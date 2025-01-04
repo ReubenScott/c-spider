@@ -1,7 +1,7 @@
 ﻿using HtmlAgilityPack;
 using Market.Services;
-using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -40,7 +40,7 @@ namespace Market.Headless
                     var percentage = match.Groups[5].Value;
 
                     symbols.Add(symbol);
-                    Console.WriteLine($"交易所：{exchange} 代码：{symbol} 名称：{name} 涨幅：{change} 百分比：{percentage}");
+                    Debug.WriteLine($"交易所：{exchange} 代码：{symbol} 名称：{name} 涨幅：{change} 百分比：{percentage}");
                 }
             }
 

@@ -6,7 +6,6 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using System.Linq;
 using System.Data.Linq.Mapping;
 
@@ -254,8 +253,8 @@ namespace Market.Services
                      SELECT * FROM company_statistics
                      WHERE symbol = @symbol";
 
-            string sql3 = @"DELETE FROM company_statistics
-                    WHERE symbol = @symbol";
+            //string sql3 = @"DELETE FROM company_statistics
+            //        WHERE symbol = @symbol";
 
             using (var connection = new SQLiteConnection(connectionString))
             {
@@ -285,9 +284,9 @@ namespace Market.Services
 
 
                             //  company_statistics の削除
-                            command.CommandText = sql3;
-                            command.Parameters.AddWithValue("@symbol", symbol);
-                            command.ExecuteNonQuery();
+                            //command.CommandText = sql3;
+                            //command.Parameters.AddWithValue("@symbol", symbol);
+                            //command.ExecuteNonQuery();
 
                             symbols.Add(symbol);
                         }
@@ -306,48 +305,8 @@ namespace Market.Services
         /// 初始化节假日
         /// </summary>
         public void InitHolidays()
-        {
-            string url = "https://holidays-jp.github.io/api/v1/date.json";
-            string json = new BaseFrame().GetHttpContent(url).Result;
-
-            // 使用LINQ获取JSON对象的键，并添加到DaemonService.Holidays列表中
-            DaemonService.Holidays.AddRange(JObject.Parse(json).Properties().Select(p => p.Name));
-        }
-
-
-        // (更新日期 < 当前日期) 并且 (更新日期 < 最终交易日期 + 1天)
-        public bool IsHoliday(string dateString)
-        {
-            DateTime currentDate = DateTime.Today; // 当前日期
-            DateTime lastBusDate = currentDate;
-
-            // 更新日期
-            //string dateString = "2025-07-21";
-            DateTime updateDate = DateTime.Parse(dateString);
-
-            Console.WriteLine($"日期: {updateDate.ToString("yyyy-MM-dd")}");
-            Console.WriteLine($"現在日付: {currentDate.ToString("yyyy-MM-dd")}");
-
-            // (更新日期 < 当前日期) 并且 (更新日期 < 最终交易日期)
-            if (updateDate < currentDate)
-            {
-                Console.WriteLine("更新日期小于当前日期");
-
-                // 最终交易日期
-                while (lastBusDate.DayOfWeek == DayOfWeek.Saturday || lastBusDate.DayOfWeek == DayOfWeek.Sunday
-                     || DaemonService.Holidays.Contains(lastBusDate.ToString("yyyy-MM-dd")))
-                {
-                    lastBusDate = lastBusDate.AddDays(-1);
-                }
-
-                //  更新日期 < 最终交易日期
-                if (updateDate < lastBusDate)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+        {                           
+            DaemonService.Holidays.AddRange(new Jpx().GetHolidayList().Result);
         }
 
 
@@ -368,7 +327,7 @@ namespace Market.Services
             }
 
             while (lastBusDate.DayOfWeek == DayOfWeek.Saturday || lastBusDate.DayOfWeek == DayOfWeek.Sunday
-                 || DaemonService.Holidays.Contains(lastBusDate.ToString("yyyy-MM-dd")))
+                 || DaemonService.Holidays.Contains(lastBusDate.ToString("yyyy/MM/dd")))
             {
                 lastBusDate = lastBusDate.AddDays(-1);
             }

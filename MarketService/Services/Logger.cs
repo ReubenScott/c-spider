@@ -35,7 +35,7 @@ namespace Market.Services
             catch (Exception ex)
             {
                 // Handle exception (e.g., log it to another location or rethrow)
-                Console.WriteLine($"Error writing to log file: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error writing to log file: {ex.Message}");
             }
             finally
             {
