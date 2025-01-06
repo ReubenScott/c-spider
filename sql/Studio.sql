@@ -33,7 +33,7 @@ from  company_profile
 SELECT symbol, name, update_date FROM company_statistics
    WHERE (update_date <> '2024/11/27' OR update_date IS NULL)
        AND delisting_date IS NULL
-   ORDER BY update_date ASC, RANDOM() LIMIT 100
+   ORDER BY RANDOM() LIMIT 100
 
 
 
