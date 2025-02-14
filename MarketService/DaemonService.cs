@@ -95,7 +95,7 @@ namespace Market
                             sw.Stop();
                             Logger.Debug($"SymbolQueue Consumed: {symbol}  Working... {sw.ElapsedMilliseconds} msec");
                             // 等待一段时间
-                            System.Threading.Thread.Sleep(3500);   //  毫秒
+                            //System.Threading.Thread.Sleep(3500);   //  毫秒
                         }
                     }
                 }

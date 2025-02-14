@@ -31,7 +31,7 @@ namespace Market.Services
         /// <summary>
         /// Webからデータの取得
         /// </summary>
-        public async Task<CompanyStatistics> GetCompanyProfile()
+        public virtual async Task<CompanyStatistics> GetCompanyProfile()
         {
             string html = await GetHttpContent(Url);
             return WebAnalysis(html);

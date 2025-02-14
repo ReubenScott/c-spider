@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Configuration;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -6,7 +7,6 @@ namespace Market.Services
 {
     class BaseFrame
     {
-
         /// <summary>
         /// Webからデータの取得
         /// </summary>
@@ -18,10 +18,22 @@ namespace Market.Services
             using (HttpClientHandler handler = new HttpClientHandler())
             {
                 // 设置 cookies
-                handler.UseCookies = true;
+                // handler.UseCookies = true;
+                // 创建一个 CookieContainer 来存储 Cookie
                 //var cookieContainer = new CookieContainer();
                 //cookieContainer.Add(new Cookie("cookieName", "cookieValue") { Domain = "example.com" });
                 //handler.CookieContainer = cookieContainer;
+
+                /*
+                // 获取所有的 Cookie // 替换为您的 Base URL
+                CookieCollection cookies = handler.CookieContainer.GetCookies(new Uri(Url));
+                // 打印所有的 Cookie
+                foreach (Cookie cookie in cookies)
+                {
+                    Console.WriteLine($"Cookie Name: {cookie.Name}, Cookie Value: {cookie.Value}");
+                }
+                */
+
 
                 if (Config.useProxy)
                 {
@@ -37,7 +49,10 @@ namespace Market.Services
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("text/html"));
 
                     // 设置用户代理
-                    client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+                    client.DefaultRequestHeaders.Add("User-Agent", ConfigurationManager.AppSettings["UserAgent"]);
+
+                    // 添加 API 密钥到请求头
+                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
                     using (HttpResponseMessage response = await client.GetAsync(Url))
                     {

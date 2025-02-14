@@ -15,7 +15,10 @@ namespace Market
 
         public const int LogLevel = (int)Logger.Level.Debug;
 
-        public const bool useProxy = false; // 根据需要设置是否使用代理
+        #region MyRegion
+        // User-Agent
+        // Proxy 根据需要设置是否使用代理
+        public const bool useProxy = false;
 
         // 亿牛云（动态转发隧道代理）
         //爬虫代理加强版 代理服务器的认证信息
@@ -23,5 +26,6 @@ namespace Market
         public const int proxyPort = 3100;
         public const string proxyUsername = "16YUN";
         public const string proxyPassword = "16IP";
+        #endregion
     }
 }
