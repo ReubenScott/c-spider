@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Threading;
 
@@ -6,11 +7,11 @@ namespace Market.Services
 {
     public static class Logger
     {
-        private static readonly string _logfile = Config.logfile;
+        private static readonly string _logfile = ConfigurationManager.AppSettings["LogPath"];
 
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
-        private static readonly int logLevel = Config.LogLevel;
+        private static readonly int logLevel = int.Parse(ConfigurationManager.AppSettings["LogLevel"]);
 
         // Define an enum named DebugLevel
         public enum Level

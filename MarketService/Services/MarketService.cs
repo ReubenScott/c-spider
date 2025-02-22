@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Data.Linq.Mapping;
+using System.Configuration;
 
 namespace Market.Services
 {
@@ -15,7 +16,7 @@ namespace Market.Services
     {
         //データベースのファイルパスを指定
         //string connectionString = $"Data Source={db_file};Journal Mode=Memory;Synchronous=Full";
-        private readonly string connectionString = $"Data Source={Config.db_file};Journal Mode=Memory;Synchronous=Full";
+        private readonly string connectionString = $"Data Source={ConfigurationManager.AppSettings["DataPath"]};Journal Mode=Memory;Synchronous=Full";
 
         /// <summary>
         /// 値上がり率 / 値下がり率ランキング

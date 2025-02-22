@@ -1,5 +1,4 @@
 ﻿using System.Configuration;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -34,15 +33,16 @@ namespace Market.Services
                 }
                 */
 
-
-                if (Config.useProxy)
-                {
-                    handler.Proxy = new WebProxy(Config.proxyUrl, Config.proxyPort);
-                    handler.UseProxy = true;
-                    handler.PreAuthenticate = true;
-                    handler.UseDefaultCredentials = false;
-                    handler.Credentials = new NetworkCredential(Config.proxyUsername, Config.proxyPassword);
-                }
+                // Proxy 根据需要设置是否使用代理
+                //爬虫代理加强版 代理服务器的认证信息
+                //if (Config.useProxy)
+                //{
+                //    handler.Proxy = new WebProxy(Config.proxyUrl, Config.proxyPort);
+                //    handler.UseProxy = true;
+                //    handler.PreAuthenticate = true;
+                //    handler.UseDefaultCredentials = false;
+                //    handler.Credentials = new NetworkCredential(Config.proxyUsername, Config.proxyPassword);
+                //}
                 using (HttpClient client = new HttpClient(handler))
                 {
                     // 设置 Accept 头，以指示客户端可以接受重定向

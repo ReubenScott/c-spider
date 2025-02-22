@@ -1,5 +1,4 @@
-﻿using Market.Headless;
-using Market.Services;
+﻿using Market.Services;
 using System.Collections.Generic;
 using System.ServiceProcess;
 using System.Threading.Tasks;

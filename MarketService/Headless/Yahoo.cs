@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using Market.Models;
 using Market.Services;
+using Microsoft.Playwright;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -27,10 +28,12 @@ namespace Market.Headless
                 if (Exchange.Contains("東証"))
                 {
                     ex = "T";
-                } else if (Exchange.Contains("福証"))
+                }
+                else if (Exchange.Contains("福証"))
                 {
                     ex = "F";
-                } else if (Exchange.Contains("札証"))
+                }
+                else if (Exchange.Contains("札証"))
                 {
                     ex = "S";
                 }
@@ -71,57 +74,14 @@ namespace Market.Headless
             { "Total Debt/Equity", "DebtEquityRatio" },
         };
 
-
         /// <summary>
         /// Webからデータの取得
         /// </summary>
         public override async Task<CompanyStatistics> GetCompanyProfile()
         {
-            // 创建ChromeOptions对象并设置无头模式
-            ChromeOptions options = new ChromeOptions();
-            options.AddArgument("--headless");
-            options.AddArgument("--disable-gpu");
-            // 设置页面加载策略为Eager，即页面加载到可交互状态时即认为加载完成
-            options.PageLoadStrategy = PageLoadStrategy.Eager;
-            //# chrome.exe可執行檔的路徑，查看方法。chrome://version/
-            options.BinaryLocation = ConfigurationManager.AppSettings["ChromePath"];
-
-            //# 启用带插件的浏览器 設定檔路徑 设置成用户自己的数据目录
-            //options.add_argument("--user-data-dir=" + r"C:/Users/tanoshi/AppData/Local/Chromium/User Data/")
-
-            // ChromeDriver 的实际路径
-            string driverPath = ConfigurationManager.AppSettings["DriverPath"];
-            ChromeDriverService service = ChromeDriverService.CreateDefaultService(driverPath);
-            service.HideCommandPromptWindow = true; // 隐藏命令行窗口
-
-            // 创建WebDriver实例
-            var webDriver = new ChromeDriver(service, options);
-
-            // 设置页面加载超时时间为 单位 秒
-            webDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(200);
-
-            try
-            {
-                // 打开网页
-                await Task.Run(() => webDriver.Navigate().GoToUrl(Url));
-
-                // 搜索并点击
-                IWebElement element = webDriver.FindElement(By.XPath("//a[contains(@href, '/quote/') and contains(@href, '/key-statistics/') ]"));
-                element.Click();
-
-                // 等待页面加载完成，这里使用显式等待
-                WebDriverWait wait = new WebDriverWait(webDriver, TimeSpan.FromSeconds(60));
-                wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
-
-                // 获取新页面的HTML
-                string html = webDriver.PageSource;
-                return WebAnalysis(html);
-            }
-            finally
-            {
-                // 关闭所有窗口，退出 WebDriver 实例
-                webDriver.Quit();
-            }
+            //string html = await PlaywrightAsync();
+            string html = await SeleniumAsync();
+            return WebAnalysis(html);
         }
 
         public override CompanyStatistics WebAnalysis(string html)
@@ -137,14 +97,14 @@ namespace Market.Headless
                 .Select(node => node.SelectNodes("td"))
                 .Where(node => node != null && node.Count > 1)
                 .ToList();
-            
+
             foreach (var element in elements)
             {
                 var key = element[0].SelectNodes("./.")?.Select(
                     td =>
                     {
-                    // 移除<sup> 标签
-                    foreach (var supNode in td.Descendants("sup").ToList())
+                        // 移除<sup> 标签
+                        foreach (var supNode in td.Descendants("sup").ToList())
                         {
                             supNode.Remove();
                         }
@@ -178,6 +138,147 @@ namespace Market.Headless
 
 
             return profile;
+        }
+
+
+        /// <summary>
+        /// Playwrightでデータの取得
+        /// </summary>
+        private async Task<string> PlaywrightAsync()
+        {
+            IPlaywright playwright = null;
+            IBrowser browser = null;
+            IPage page = null;
+            try
+            {
+                playwright = await Playwright.CreateAsync();
+
+                // 创建Chromium浏览器实例
+                browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions()
+                {
+                    Headless = true, // 关闭无头模式(有界面)
+                    Channel = "chrome", // 指定采用chrome浏览器类型
+                    Devtools = true, // 启用开发者工具
+                    ChromiumSandbox = false, // 关闭浏览器沙盒
+                    ExecutablePath = ConfigurationManager.AppSettings["ChromePath"], // 指定浏览器可执行文件位置
+                    Args = new[] { "--enable-automation=true", "--disable-blink-features=AutomationControlled" }, // 防止被检测
+                });
+
+                page = await browser.NewPageAsync();
+
+                await page.GotoAsync(Url, new PageGotoOptions()
+                {
+                    Timeout = 100 * 1000 // 超时: 毫秒
+                });
+
+                // <a href="/quote/7615.T/key-statistics/"><span>Statistics</span></a>
+                // 定位元素 CSS Selector 通常更快
+                var locator = page.Locator("a[href*='/quote/'][href*='/key-statistics/'] > span:has-text('Statistics')");
+
+                // 使用 XPath
+                //var locator = page.Locator("//a[contains(@href, '/quote/') and contains(@href, '/key-statistics/')]/span[text()='Statistics']");
+
+                // 获取匹配到元素的个数
+                var count = await locator.CountAsync();
+                Console.WriteLine($"Number of matching elements: {count}");
+
+                // 点击 获取第一个匹配的元素
+                await locator.First.ClickAsync();
+
+                // 获取所有匹配的元素
+                //var elements = await locator.AllInnerTextsAsync();
+                //foreach (var element in elements)
+                //{
+                //    var innerText = await element.InnerTextAsync();
+                //    Console.WriteLine($"Found element with text: {element}");
+                //}
+
+                // Wait for navigation to complete
+                await page.WaitForNavigationAsync(new PageWaitForNavigationOptions()
+                {
+                    Timeout = 100 * 1000 // 超时: 毫秒
+                });
+
+                // Now you can get the HTML content of the new page
+                var html = await page.ContentAsync();
+
+
+                //var title = await page.InnerTextAsync("title");
+                //Console.WriteLine(title);
+                return html;
+            }
+            finally
+            {
+                // 关闭所有窗口，退出实例
+                if (page != null ) await page.CloseAsync();
+                if (browser != null) await browser.CloseAsync();
+                if (playwright != null) playwright.Dispose();
+            }
+
+        }
+
+
+        /// <summary>
+        /// Seleniumで、データの取得
+        /// </summary>
+        private async Task<string> SeleniumAsync()
+        {
+            ChromeDriver webDriver = null;
+            try
+            {
+                // 创建ChromeOptions对象并设置无头模式
+                ChromeOptions options = new ChromeOptions();
+                options.AddArgument("--headless");
+                options.AddArgument("--disable-gpu");
+                // 设置页面加载策略为Eager，即页面加载到可交互状态时即认为加载完成
+                options.PageLoadStrategy = PageLoadStrategy.Eager;
+                //# chrome.exe可執行檔的路徑
+                options.BinaryLocation = ConfigurationManager.AppSettings["ChromePath"];
+
+                //# 启用带插件的浏览器 設定檔路徑 设置成用户自己的数据目录
+                //options.add_argument("--user-data-dir=" + r"C:/Users/tanoshi/AppData/Local/Chromium/User Data/")
+
+                // ChromeDriver 的实际路径
+                string driverPath = ConfigurationManager.AppSettings["DriverPath"];
+                ChromeDriverService service = ChromeDriverService.CreateDefaultService(driverPath);
+                service.HideCommandPromptWindow = true; // 隐藏命令行窗口
+
+                // 创建WebDriver实例
+                webDriver = new ChromeDriver(service, options);
+
+                //timeout: 最长超时时间
+                int timeout = 200;
+
+                // 设置页面加载超时时间为 单位 秒
+                webDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(timeout);
+
+                // 显式等待
+                WebDriverWait wait = new WebDriverWait(webDriver, TimeSpan.FromSeconds(timeout));
+
+                // 打开网页
+                await Task.Run(() => webDriver.Navigate().GoToUrl(Url));
+
+                // 等待特定元素出现
+                wait.Until(d => d.FindElement(By.XPath("//a[contains(@href, '/quote/') and contains(@href, '/key-statistics/')]")));
+
+                // 搜索并点击
+                IWebElement element = webDriver.FindElement(By.XPath("//a[contains(@href, '/quote/') and contains(@href, '/key-statistics/')]"));
+                element.Click();
+
+                // 等待页面加载完成，这里使用显式等待
+                //wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
+                // 等待特定元素出现
+                wait.Until(d => d.FindElement(By.XPath("//div[contains(@class, 'table-container')]")));
+
+                // 获取新页面的HTML
+                string html = webDriver.PageSource;
+                return html;
+            }
+            finally
+            {
+                // 关闭所有窗口，退出 WebDriver 实例
+                if (webDriver != null) webDriver.Quit(); 
+            }
         }
     }
 
