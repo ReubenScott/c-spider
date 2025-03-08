@@ -4,37 +4,56 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Net;
+using System.Collections.Generic;
 
 namespace Market.Services
 {
     abstract class DataIntegrator : BaseFrame
     {
         /// <summary>
-        /// Web内容の分析
-        /// </summary>
-        /// <param name="html">网页内容</param>
-        public abstract CompanyStatistics WebAnalysis(string html);
-
-        /// <summary>
         /// 目标网站的URL
         /// </summary>
-        protected abstract string Url { get; }
+        protected abstract string[] Url { get; }
 
         /// <summary>
         /// 銘柄 股票代码 
         /// </summary>
         protected string Symbol { get; set; }
 
-        // 上場市場  福証Q-Board 
-        protected string Exchange { get; set; }
+
+        /// <summary>
+        /// 株情報
+        /// </summary>
+        protected EquityProfile EquityProfile;
+
+
+        /// <summary>
+        /// 回调函数名和对应的值
+        /// 键的类型是string，值的类型是Action<string>
+        /// Action<string>是一个委托类型
+        /// </summary>
+        protected Dictionary<string, Action<string>> Callbacks = new Dictionary<string, Action<string>>();
+
 
         /// <summary>
         /// Webからデータの取得
         /// </summary>
-        public virtual async Task<CompanyStatistics> GetCompanyProfile()
+        public virtual async Task<EquityProfile> GetCompanyProfile()
         {
-            string html = await GetHttpContent(Url);
-            return WebAnalysis(html);
+
+            foreach(string url in Url)
+            {
+                string html = await GetHttpContent(url);
+                if (html == null)
+                {
+                    break;
+                }
+
+                // 调用回调函数
+                Callbacks[url](html);
+            }
+
+            return EquityProfile;
         }
 
 

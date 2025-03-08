@@ -14,11 +14,11 @@ namespace Market.Headless
 
     class Kabumap : DataIntegrator
     {
-        protected override string Url
+        protected override string[] Url
         {
             get
             {
-                return $"https://dt.kabumap.com/servlets/dt/Action?SRC=basic/base&codetext={Symbol}";
+                return new string[] {$"https://dt.kabumap.com/servlets/dt/Action?SRC=basic/base&codetext={Symbol}" };
             }
         }
 
@@ -26,6 +26,10 @@ namespace Market.Headless
         public Kabumap(string symbol)
         {
             Symbol = symbol;
+            EquityProfile = new EquityProfile { Symbol = symbol };
+
+            // 添加回调函数
+            Callbacks.Add(Url[0], CompanyStatisticsAnalysis);
         }
 
 
@@ -41,7 +45,11 @@ namespace Market.Headless
             { "信用倍率", "CreditMultiplier" },
         };
 
-        public override CompanyStatistics WebAnalysis(string html)
+        /// <summary>
+        /// Web内容の分析
+        /// </summary>
+        /// <param name="html">网页内容</param>
+        public void CompanyStatisticsAnalysis(string html)
         {
 
             // 使用HTMLAgilityPack解析HTML文档
@@ -56,7 +64,7 @@ namespace Market.Headless
                 .Select(node => node.InnerText.Trim())
                 .ToList();
 
-            var profile = new CompanyStatistics {Symbol = Symbol, PresentPrice = decimal.Parse(price) };
+            EquityProfile.PresentPrice = decimal.Parse(price) ;
 
             for (int i = 0; i < elements.Count; i += 2)
             {
@@ -65,11 +73,9 @@ namespace Market.Headless
 
                 if (mapping.ContainsKey(key))
                 {
-                    SetPropertyValue(profile, mapping[key], value);
+                    SetPropertyValue(EquityProfile, mapping[key], value);
                 }
             }
-
-            return profile;
         }
 
 
@@ -90,7 +96,7 @@ namespace Market.Headless
                     .Select(node => node.InnerText.Trim())
                     .ToList();
 
-                var row = new CompanyStatistics { Symbol = symbol };
+                var row = new EquityProfile { Symbol = symbol };
 
                 for (int i = 0; i < elements.Count; i += 2)
                 {
@@ -100,7 +106,7 @@ namespace Market.Headless
                     if (mapping.ContainsKey(key))
                     {
                         var field = mapping[key];
-                        typeof(CompanyStatistics).GetProperty(field).SetValue(row, value);
+                        typeof(EquityProfile).GetProperty(field).SetValue(row, value);
                     }
                 }
 
@@ -113,7 +119,7 @@ namespace Market.Headless
             Debug.WriteLine($"耗时: {elapsed_time} 秒");
         }
 
-        public async Task<CompanyStatistics> GetCompanyProfile1(string symbol)
+        public async Task<EquityProfile> GetCompanyProfile1(string symbol)
         {
             var start_time = DateTime.Now;
             var httpClient = new HttpClient();
@@ -128,7 +134,7 @@ namespace Market.Headless
                 .Select(node => node.InnerText.Trim())
                 .ToList();
 
-            var row = new CompanyStatistics { Symbol = symbol };
+            var row = new EquityProfile { Symbol = symbol };
 
             if (elements.Count > 0)
             {
@@ -140,7 +146,7 @@ namespace Market.Headless
                     if (mapping.ContainsKey(key))
                     {
                         var field = mapping[key];
-                        typeof(CompanyStatistics).GetProperty(field).SetValue(row, value);
+                        typeof(EquityProfile).GetProperty(field).SetValue(row, value);
                     }
                 }
             }

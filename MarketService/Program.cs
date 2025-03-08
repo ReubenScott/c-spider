@@ -25,16 +25,19 @@ namespace Market
         {
             MarketService marketService = new MarketService();
 
-            //marketService.FormatData();
-            // 9941, 5596, 1773, 3895, 6905, 9257
-            string symbol = "4755";
-            await marketService.UpdateCompanyProfile(symbol, "2024/11/09");
-            
+            string tradingDate = "2025/03/07";  // 業務基準日 yyyy/MM/dd")
+
             HashSet<string> symbols = new HashSet<string>();
-            symbols.Add("2651");
-            symbols.Add("2427");
-            symbols.Add("9783");
-            symbols.Add("4185");
+            //symbols.Add("7966");
+            //symbols.Add("3358");
+            //symbols.Add("3845");
+            //symbols.Add("5446");
+            symbols.Add("3470");
+
+            foreach (string symbol in symbols)
+            {
+                await marketService.UpdateCompanyProfile(symbol, tradingDate);
+            }
             //marketService.GetBatchSymbol("2024/10/08", 2);
             //marketService.UpdateDelistedStatus(symbols);
         }

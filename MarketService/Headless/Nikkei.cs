@@ -10,11 +10,11 @@ namespace Market.Headless
 
     class Nikkei : DataIntegrator
     {
-        protected override string Url
+        protected override string[] Url
         {
             get
             {
-                return $"https://www.nikkei.com/nkd/company/gaiyo/?scode={Symbol}";
+                return new string[] { $"https://www.nikkei.com/nkd/company/gaiyo/?scode={Symbol}" } ;
             }
         }
 
@@ -22,6 +22,10 @@ namespace Market.Headless
         public Nikkei(string symbol)
         {
             Symbol = symbol;
+            EquityProfile = new EquityProfile { Symbol = symbol };
+
+            // 添加回调函数
+            Callbacks.Add(Url[0], CompanyStatisticsAnalysis);
         }
 
         public Nikkei() { }
@@ -31,7 +35,7 @@ namespace Market.Headless
             { "正式社名", "Name" },
             { "設立年月日", "EstablishedDate" },
             { "日経業種分類", "Industry" },
-            { "東証業種名", "Sector" },
+            //{ "東証業種名", "Sector" },
             { "指数採用", "IndexAdoption" },
             { "URL", "Url" },
             { "代表者氏名", "Representative" },
@@ -43,13 +47,15 @@ namespace Market.Headless
         };
 
 
-        public override CompanyStatistics WebAnalysis(string html)
+        /// <summary>
+        /// Web内容の分析
+        /// </summary>
+        /// <param name="html">网页内容</param>
+        public void CompanyStatisticsAnalysis(string html)
         {
             // 使用HTMLAgilityPack解析HTML文档
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(html);
-
-            var profile = new CompanyStatistics { Symbol = Symbol };
 
             foreach (var tr in document.DocumentNode.SelectNodes("//div[@class='m-articleFrame_body']//table//tr")?.Take(22))
             {
@@ -65,12 +71,10 @@ namespace Market.Headless
 
                 if (mapping.ContainsKey(key))
                 {
-                    SetPropertyValue(profile, mapping[key], value);
+                    SetPropertyValue(EquityProfile, mapping[key], value);
                 }
             }
 
-
-            return profile;
         }
     }
 

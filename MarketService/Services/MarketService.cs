@@ -112,22 +112,22 @@ namespace Market.Services
         /// <returns></returns>
         public async Task UpdateCompanyProfile(string symbol, string dateString)
         {
-            CompanyStatistics profile1 = await new Kabumap(symbol).GetCompanyProfile();
-            CompanyStatistics profile2 = await new Nikkei(symbol).GetCompanyProfile();
-            CompanyStatistics profile3 = await new Kabuyoho(symbol).GetCompanyProfile();
-            CompanyStatistics profile4 = await new Minkabu(symbol).GetCompanyProfile();
+            EquityProfile profile1 = await new Minkabu(symbol).GetCompanyProfile();  // 株式（上場市場）の状況
+            EquityProfile profile2 = await new Kabumap(symbol).GetCompanyProfile();
+            EquityProfile profile3 = await new Nikkei(symbol).GetCompanyProfile();
+            EquityProfile profile4 = await new Kabuyoho(symbol).GetCompanyProfile();
 
-            CompanyStatistics profile5 = profile4;  // await new Yahoo(symbol, profile4.Exchange).GetCompanyProfile();
+            EquityProfile profile5 = profile1;  // await new Yahoo(symbol, profile4.Exchange).GetCompanyProfile();
             // 名証  https://finance.yahoo.com/ 不支持
-            if (!profile4.Exchange.Contains("名証"))
+            if (!profile1.Exchange?.Contains("名証") ?? true)
             {
-                profile5 = await new Yahoo(symbol, profile4.Exchange).GetCompanyProfile();
+                profile5 = await new Yahoo(symbol, profile1.Exchange).GetCompanyProfile();
             }
 
-            CompanyStatistics profile = MergeProfiles(profile1, profile2, profile3, profile4, profile5);
+            EquityProfile profile = MergeProfiles(profile1, profile2, profile3, profile4, profile5);
 
             // 获取CompanyStatistics对象的属性
-            var properties = typeof(CompanyStatistics).GetProperties();
+            var properties = typeof(EquityProfile).GetProperties();
 
             int count = 0;
             string updateColumn = "";

@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -56,6 +57,13 @@ namespace Market.Services
 
                     using (HttpResponseMessage response = await client.GetAsync(Url))
                     {
+                        // 检查响应状态码是否为404
+                        if (response.StatusCode == HttpStatusCode.NotFound)
+                        {
+                            // 处理404状态
+                            return null;
+                        }
+
                         // 确保响应状态码表示成功
                         response.EnsureSuccessStatusCode();
 

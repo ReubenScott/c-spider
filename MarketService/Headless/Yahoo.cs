@@ -17,7 +17,10 @@ namespace Market.Headless
 
     class Yahoo : DataIntegrator
     {
-        protected override string Url
+        // 上場市場  福証Q-Board 
+        protected string Exchange { get; set; }
+
+        protected override string[] Url
         {
             // 東証 https://finance.yahoo.com/quote/7615.T/key-statistics/
             // 福証 https://finance.yahoo.com/quote/3047.F/key-statistics/
@@ -25,7 +28,7 @@ namespace Market.Headless
             get
             {
                 string ex = "T";
-                if (Exchange.Contains("東証"))
+                if (Exchange?.Contains("東証") ?? true)
                 {
                     ex = "T";
                 }
@@ -37,7 +40,7 @@ namespace Market.Headless
                 {
                     ex = "S";
                 }
-                return $"https://finance.yahoo.com/quote/{Symbol}.{ex}/";
+                return new string[] { $"https://finance.yahoo.com/quote/{Symbol}.{ex}/" };
             }
         }
 
@@ -49,7 +52,11 @@ namespace Market.Headless
         public Yahoo(string symbol, string exchange)
         {
             Symbol = symbol;
-            Exchange = exchange;
+            Exchange = exchange; // ?? "東証"
+            EquityProfile = new EquityProfile { Symbol = symbol, Exchange = exchange};
+
+            // 添加回调函数
+            //callbacks.Add(Url[1], CompanyStatisticsAnalysis);
         }
 
 
@@ -77,20 +84,26 @@ namespace Market.Headless
         /// <summary>
         /// Webからデータの取得
         /// </summary>
-        public override async Task<CompanyStatistics> GetCompanyProfile()
+        public override async Task<EquityProfile> GetCompanyProfile()
         {
             //string html = await PlaywrightAsync();
-            string html = await SeleniumAsync();
-            return WebAnalysis(html);
+            string html = await SeleniumAsync(); 
+            CompanyStatisticsAnalysis(html);
+            return EquityProfile;
         }
 
-        public override CompanyStatistics WebAnalysis(string html)
+
+        /// <summary>
+        /// Web内容の分析
+        /// </summary>
+        /// <param name="html">网页内容</param>
+        public void CompanyStatisticsAnalysis(string html)
         {
             // 使用HTMLAgilityPack解析HTML文档
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(html);
 
-            var profile = new CompanyStatistics { Symbol = Symbol };
+            //var profile = new CompanyStatistics {Symbol = this.Symbol, Exchange = this.Exchange };
 
             var elements = document.DocumentNode.SelectNodes("//div[contains(@class, 'table-container')]//table//tr")
                 .Concat(document.DocumentNode.SelectNodes("//div[contains(@class, 'container')]//table//tr"))
@@ -132,12 +145,10 @@ namespace Market.Headless
 
                 if (mapping.ContainsKey(key))
                 {
-                    SetPropertyValue(profile, mapping[key], value);
+                    SetPropertyValue(EquityProfile, mapping[key], value);
                 }
             }
 
-
-            return profile;
         }
 
 
@@ -166,7 +177,7 @@ namespace Market.Headless
 
                 page = await browser.NewPageAsync();
 
-                await page.GotoAsync(Url, new PageGotoOptions()
+                await page.GotoAsync(Url[0], new PageGotoOptions()
                 {
                     Timeout = 100 * 1000 // 超时: 毫秒
                 });
@@ -256,7 +267,7 @@ namespace Market.Headless
                 WebDriverWait wait = new WebDriverWait(webDriver, TimeSpan.FromSeconds(timeout));
 
                 // 打开网页
-                await Task.Run(() => webDriver.Navigate().GoToUrl(Url));
+                await Task.Run(() => webDriver.Navigate().GoToUrl(Url[0]));
 
                 // 等待特定元素出现
                 wait.Until(d => d.FindElement(By.XPath("//a[contains(@href, '/quote/') and contains(@href, '/key-statistics/')]")));

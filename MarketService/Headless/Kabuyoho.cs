@@ -12,11 +12,12 @@ namespace Market.Headless
         /// <summary>
         /// 企業情報 https://kabuyoho.jp/reportTop?bcode=5020
         /// </summary>
-        protected override string Url
+        protected override string[] Url
         {
             get
             {
-                return $"https://kabuyoho.jp/reportTop?bcode={Symbol}";
+
+                return new string[] { $"https://kabuyoho.jp/reportTop?bcode={Symbol}" };
             }
         }
 
@@ -24,6 +25,10 @@ namespace Market.Headless
         public Kabuyoho(string symbol)
         {
             Symbol = symbol;
+            EquityProfile = new EquityProfile { Symbol = symbol };
+
+            // 添加回调函数
+            Callbacks.Add(Url[0], CompanyStatisticsAnalysis);
         }
 
 
@@ -41,13 +46,15 @@ namespace Market.Headless
         };
 
 
-        public override CompanyStatistics WebAnalysis(string html)
+        /// <summary>
+        /// Web内容の分析
+        /// </summary>
+        /// <param name="html">网页内容</param>
+        public void CompanyStatisticsAnalysis(string html)
         {
             // 使用HTMLAgilityPack解析HTML文档
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(html);
-
-            var profile = new CompanyStatistics { Symbol = Symbol };
 
             var elements = document.DocumentNode.SelectNodes("//div[@class='smary_box']//dl//dt| //div[@class='smary_box']//dl//dd")?.ToList();
 
@@ -72,7 +79,7 @@ namespace Market.Headless
 
                     if (key != null && mapping.ContainsKey(key))
                     {
-                        SetPropertyValue(profile, mapping[key], value);
+                        SetPropertyValue(EquityProfile, mapping[key], value);
                     }
                 }
 
@@ -85,7 +92,7 @@ namespace Market.Headless
 
                     if (mapping.ContainsKey(businessTitel))
                     {
-                        SetPropertyValue(profile, mapping[businessTitel], businessScope);
+                        SetPropertyValue(EquityProfile, mapping[businessTitel], businessScope);
                     }
                 }
 
@@ -98,12 +105,11 @@ namespace Market.Headless
 
                     if (mapping.ContainsKey(productTitel))
                     {
-                        SetPropertyValue(profile, mapping[productTitel], productRange);
+                        SetPropertyValue(EquityProfile, mapping[productTitel], productRange);
                     }
                 }
             }
 
-            return profile;
         }
     }
 

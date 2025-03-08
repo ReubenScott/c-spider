@@ -106,7 +106,7 @@
     <Compile Include="Headless\Minkabu.cs" />
     <Compile Include="Headless\Nikkei.cs" />
     <Compile Include="Headless\Yahoo.cs" />
-    <Compile Include="Models\CompanyStatistics.cs" />
+    <Compile Include="Models\EquityProfile.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>

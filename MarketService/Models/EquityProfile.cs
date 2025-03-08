@@ -6,7 +6,7 @@ namespace Market.Models
 {
 
     [Table(Name = "company_statistics")]
-    class CompanyStatistics
+    class EquityProfile
     {
         //  コード
         [Column(Name = "symbol", IsPrimaryKey = true)]
