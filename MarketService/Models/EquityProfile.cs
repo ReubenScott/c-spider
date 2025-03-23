@@ -5,7 +5,7 @@ using System.Data.Linq.Mapping;
 namespace Market.Models
 {
 
-    [Table(Name = "company_statistics")]
+    [Table(Name = "equity_statistics")]
     class EquityProfile
     {
         //  コード

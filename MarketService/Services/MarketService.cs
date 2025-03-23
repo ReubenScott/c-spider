@@ -35,7 +35,7 @@ namespace Market.Services
                 using (var cmd = new SQLiteCommand(connection))
                 {
                     //データ抽出
-                    cmd.CommandText = @"SELECT symbol, name, update_date FROM company_statistics
+                    cmd.CommandText = @"SELECT symbol, name, update_date FROM equity_statistics
                             WHERE delisting_date IS NULL
                             AND (update_date<> @tradingDate OR update_date IS NULL) 
                             AND symbol IN ( " + string.Join(",", symbols) + " )";
@@ -77,7 +77,7 @@ namespace Market.Services
                 using (var cmd = new SQLiteCommand(connection))
                 {
                     //データ抽出 
-                    cmd.CommandText = @"SELECT symbol, name, update_date FROM company_statistics
+                    cmd.CommandText = @"SELECT symbol, name, update_date FROM equity_statistics
                              WHERE (update_date <> ? OR update_date IS NULL)
                                  AND delisting_date IS NULL
                              ORDER BY update_date ASC, RANDOM() LIMIT ?";
@@ -195,7 +195,7 @@ namespace Market.Services
             using (var connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
-                var sql = $"UPDATE company_statistics SET update_date = '{dateString}', {updateColumn} WHERE symbol = '{symbol}'";
+                var sql = $"UPDATE equity_statistics SET update_date = '{dateString}', {updateColumn} WHERE symbol = '{symbol}'";
                 using (var command = new SQLiteCommand(sql, connection))
                 {
                     command.Parameters.AddRange(updateValues.ToArray());
@@ -246,15 +246,15 @@ namespace Market.Services
 
             List<string> symbols = new List<string>();
 
-            string sql1 = @"UPDATE company_statistics
+            string sql1 = @"UPDATE equity_statistics
                      SET delisting_date = @delistingDate
                     WHERE symbol = @symbol";
 
-            string sql2 = @"INSERT INTO company_statistics_archive
-                     SELECT * FROM company_statistics
+            string sql2 = @"INSERT INTO equity_statistics_archive
+                     SELECT * FROM equity_statistics
                      WHERE symbol = @symbol";
 
-            //string sql3 = @"DELETE FROM company_statistics
+            //string sql3 = @"DELETE FROM equity_statistics
             //        WHERE symbol = @symbol";
 
             using (var connection = new SQLiteConnection(connectionString))
@@ -271,20 +271,20 @@ namespace Market.Services
 
                         if (blackList.Contains(symbol))
                         {
-                            //  company_statistics の変更
+                            //  equity_statistics の変更
                             command.CommandText = sql1;
                             command.Parameters.AddWithValue("@symbol", symbol);
                             command.Parameters.AddWithValue("@delistingDate", delistingDate);
                             command.ExecuteNonQuery();
 
-                            //  company_statistics_archive への追加
+                            //  equity_statistics_archive への追加
                             command.CommandText = sql2;
                             command.Parameters.AddWithValue("@symbol", "");
                             command.Parameters["@symbol"].Value = symbol;
                             command.ExecuteNonQuery();
 
 
-                            //  company_statistics の削除
+                            //  equity_statistics の削除
                             //command.CommandText = sql3;
                             //command.Parameters.AddWithValue("@symbol", symbol);
                             //command.ExecuteNonQuery();
@@ -363,10 +363,10 @@ namespace Market.Services
 
         public void FormatData()
         {
-            string sql1 = @"SELECT symbol, market_cap ,enterprise_value from company_statistics
+            string sql1 = @"SELECT symbol, market_cap ,enterprise_value from equity_statistics
                     WHERE delisting_date IS NOT NULL";
 
-            string sql2 = @"UPDATE company_statistics
+            string sql2 = @"UPDATE equity_statistics
                      SET market_cap = @marketCap, enterprise_value = @enterpriseValue
                     WHERE symbol = @symbol";
 
@@ -412,7 +412,7 @@ namespace Market.Services
                         float marketCap = item.Item2;
                         float enterpriseValue = item.Item3;
                    
-                            //  company_statistics の変更
+                            //  equity_statistics の変更
                             command.CommandText = sql2;
                             command.Parameters.AddWithValue("@marketCap", marketCap.ToString());
                             command.Parameters.AddWithValue("@enterpriseValue", enterpriseValue.ToString());

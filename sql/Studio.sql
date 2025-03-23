@@ -1,9 +1,9 @@
 ﻿
 
 -- 初始化
-DELETE FROM company_statistics ;
+DELETE FROM equity_statistics ;
 
-INSERT INTO company_statistics (
+INSERT INTO equity_statistics (
   symbol
 ) select symbol from CompanyProfile
 ;
@@ -30,7 +30,7 @@ from  company_profile
 
 
 -- SQLite 隨機取數
-SELECT symbol, name, update_date FROM company_statistics
+SELECT symbol, name, update_date FROM equity_statistics
    WHERE (update_date <> '2024/11/27' OR update_date IS NULL)
        AND delisting_date IS NULL
    ORDER BY RANDOM() LIMIT 100
@@ -38,7 +38,7 @@ SELECT symbol, name, update_date FROM company_statistics
 
 
 -- 廃場
-update company_statistics as t1
+update equity_statistics as t1
  set (
      name
     ,exchange

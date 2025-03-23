@@ -62,8 +62,10 @@ namespace Market.Headless
             EquityProfile.Exchange = WebUtility.HtmlDecode(element.Replace(Symbol, string.Empty)).Trim();
 
             // 業種 REIT
-            element = document.DocumentNode.SelectNodes("//div[@id='sh_field_body']//div[@class='ly_content_wrapper size_ss']//a")
+        //    element = document.DocumentNode.SelectNodes("//div[@id='sh_field_body']//div[@class='ly_content_wrapper size_ss']//a")
+            element = document.DocumentNode.SelectNodes("//div[@id='sh_field_body']//div[contains(@class, 'ly_content_wrapper size_ss')]//a[1]")
                 .Select(node => node.InnerText.Trim()).First();
+
             EquityProfile.Sector = WebUtility.HtmlDecode(element).Trim();
 
         }

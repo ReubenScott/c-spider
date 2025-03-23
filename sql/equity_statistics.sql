@@ -1,6 +1,5 @@
-
 -- 銘柄基本情報
-CREATE TABLE company_statistics (
+CREATE TABLE equity_statistics (
   symbol                    TEXT NOT NULL  ,  -- コード
   name                      TEXT           ,  -- 銘柄名
   exchange                  TEXT           ,  -- 市場区分
