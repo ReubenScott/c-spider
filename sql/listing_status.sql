@@ -1,4 +1,4 @@
-CREATE TABLE ListingStatus (
+CREATE TABLE listing_status (
    exchange      VARCHAR(9) NOT NULL
   ,symbol        VARCHAR(10) NOT NULL
   ,assetType     VARCHAR(5)

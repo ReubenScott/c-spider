@@ -4,14 +4,15 @@ DROP VIEW equity_statistics_view;
 -- 创建新视图
 CREATE VIEW equity_statistics_view AS
 SELECT			
-   symbol                    AS  コード
-  ,name                      AS  銘柄名
+   equity.symbol             AS  コード
+  ,equity.name               AS  銘柄名
   ,exchange                  AS  市場区分
   ,established_date          AS  設立日 
   ,listing_date              AS  上場日
   ,industry                  AS  日経業種分類
   ,sector                    AS  東証業種名
-  ,ROUND(CAST(volume*1000 AS REAL)/issued_shares, 2) AS '売買回転率‰' 
+  ,ROUND(CAST(volume*1000 AS REAL)/issued_shares, 2) AS '売買回転率‰'
+  ,fee.lending_fee           AS  '貸株金利%'
   ,dividend_yield            AS  '配当利回り%'
   ,IFNULL(debt_equity_ratio, 0)   AS  '债务权益比率%'
   ,IFNULL(own_capital_ratio, 0)   AS  '自己資本比率%'
@@ -30,8 +31,8 @@ SELECT
   ,eps                       AS  '基本1株当たり利益'
   ,roa                       AS  '総資産利益率%'
   ,roe                       AS  '株主資本利益率%'
-  ,market_cap                AS  '時価総額(億円)'
-  ,enterprise_value          AS  '企業価値(億円)'
+  ,ROUND(market_cap/100000000, 2)         AS  '時価総額(億円)'
+  ,ROUND(enterprise_value/100000000, 2)   AS  '企業価値(億円)'
   ,credit_multiplier         AS  '信用倍率(倍)'
   ,ex_dividend_date          AS  除息日
   ,amount_of_sales           AS  売上高
@@ -55,7 +56,9 @@ SELECT
   ,delisting_date            AS  上場廃止日
   ,volume                    AS  出来高
   ,update_date               AS  更新日
-FROM equity_statistics
+FROM equity_statistics AS equity
+LEFT JOIN equity_lending_fee AS fee
+  on equity.symbol = fee.symbol
 WHERE delisting_date is NULL
   AND exchange like '東証%'
 ORDER BY 
